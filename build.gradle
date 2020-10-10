@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'application'
+    id "com.github.johnrengelman.shadow" version "6.0.0"
+}
+
+project.ext.lwjglVersion = "3.2.3"
+project.ext.lwjglNatives = "natives-windows"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+    compile "org.slick2d:slick2d-core:1.0.2"
+}
+
+jar {
+    baseName = 'jarTMMcity'
+    version =  '0.1'
+     manifest {
+        attributes 'Main-Class': 'tmmcity.TMMcity'
+    }
+}
+
+run { 
+    standardInput = System.in 
+}
+
+shadowJar {
+   baseName = 'TMMCityFull'
+   classifier = ''
+   archiveVersion = ''
+    configurations = [project.configurations.compile]
+}
+
+application {
+    mainClassName = "tmmcity.TMMcity"
+}
