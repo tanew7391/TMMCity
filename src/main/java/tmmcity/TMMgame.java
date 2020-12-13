@@ -20,59 +20,102 @@ import static tmmcity.ZoneType.randomIntBetween;
 //TMMgame class extends BasicGameState from Slick2D library
 public class TMMgame extends BasicGameState {
 
-    //Constructor for game state
+    // Constructor for game state
     public TMMgame(int state) {
     }
 
-    private static final int gridSpacing = 50; //grid spacing in pixels, set to 50, if need to change, many dimensions need to change
+    private static final int gridSpacing = 50; // grid spacing in pixels, set to 50, if need to change, many dimensions
+                                               // need to change
 
-    //Declare variables
-    private static String infoLine1, infoLine2, infoLine2Default; //Information strings
-    private int mousey, xpos, ypos, gridX, gridY, buildCost, buildType,
-            mouseCooldownTime, updateSpeed, clockUpdateTime, recAttractionMax,
-            infoCounter, info2Counter, hospitalBuildCost, policeBuildCost,
-            endGameCooldownTime; //Integers
-    private boolean inGrid, buildItemSelected, firstRoad, displayLoan,
-            displayTax, displayEndGameConfirm, displayGameLossP, displayGameLossD, displayGameWin; //Booleans
-    private Input input; //Input tracking object
-    private static ZoneType[][] gameGrid; //2d array for zonetypes on the grid
-    private Image mouseImage, resImg, comImg, indImg, policeImg, recImg, roadImg,
-            hospitalImg, electricImg, waterImg, recImg1, recImg2, bullDozerImg,
-            backgroundgraphic, loanGraphic, taxGraphic, gameWin, gameLossP,
-            gameLossD, noPolice, noRevenue, noWater, noElectricity, noHospital,
-            endGameConfirm; //images
-    private SpriteSheet icons; //Spritesheet with game icons
-    private TrueTypeFont Adore64;  //Font object
-    private static Bank gameBank; //Bank object
-    private ArrayList<int[]> gridStack, warningStack; //Arraylist for grid stack, and warning icons
-    private static Clock gameClock; //Clock object
+    // Declare variables
+    private static String infoLine1, infoLine2, infoLine2Default; // Information strings
+
+    private int mousey;
+    private int xpos;
+    private int ypos;
+    private int gridX;
+    private int gridY;
+    private int buildCost;
+    private int buildType;
+    private int mouseCooldownTime;
+    private int updateSpeed;
+    private int clockUpdateTime;
+    private int recAttractionMax;
+    private int infoCounter;
+    private int info2Counter;
+    private int hospitalBuildCost;
+    private int policeBuildCost;
+    private int endGameCooldownTime; // Integers
+
+    private boolean inGrid;
+    private boolean buildItemSelected;
+    private boolean firstRoad;
+    private boolean displayLoan;
+    private boolean displayTax;
+    private boolean displayEndGameConfirm;
+    private boolean displayGameLossP;
+    private boolean displayGameLossD;
+    private boolean displayGameWin; // Booleans
+
+    private Input input; // Input tracking object
+    private static ZoneType[][] gameGrid; // 2d array for zonetypes on the grid
+    private Image mouseImage;
+    private Image resImg;
+    private Image comImg;
+    private Image indImg;
+    private Image policeImg;
+    private Image recImg;
+    private Image roadImg;
+    private Image hospitalImg;
+    private Image electricImg;
+    private Image waterImg;
+    private Image recImg1;
+    private Image recImg2;
+    private Image bullDozerImg;
+    private Image backgroundgraphic;
+    private Image loanGraphic;
+    private Image taxGraphic;
+    private Image gameWin;
+    private Image gameLossP;
+    private Image gameLossD;
+    private Image noPolice;
+    private Image noRevenue;
+    private Image noWater;
+    private Image noElectricity;
+    private Image noHospital;
+    private Image endGameConfirm; // images
+    private SpriteSheet icons; // Spritesheet with game icons
+    private TrueTypeFont Adore64; // Font object
+    private static Bank gameBank; // Bank object
+    private ArrayList<int[]> gridStack, warningStack; // Arraylist for grid stack, and warning icons
+    private static Clock gameClock; // Clock object
     private static int difficulty;
     private double score;
 
-    //Initializer for game state
+    // Initializer for game state
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 
-        //game play goes from top right at (1680, 9) to bottom left at (229, 887)
-        
-        //reset all of the static variables
-        ResidentialZone.setTotalJobsInUse(0); //reset population
+        // game play goes from top right at (1680, 9) to bottom left at (229, 887)
+
+        // reset all of the static variables
+        ResidentialZone.setTotalJobsInUse(0); // reset population
         CommercialZone.setTotalJobsAvailable(0);
         CommercialZone.setTotalRevenueAvailable(0);
         CommercialZone.setTotalJobs(0);
         ArrayList<CommercialZone> commercialStack = new ArrayList<>();
-        CommercialZone.setCommercialStack(commercialStack);    
+        CommercialZone.setCommercialStack(commercialStack);
         IndustrialZone.setTotalCommercialAvailable(0);
         RecreationalZone.setExpense(0);
         GovernmentZone.setExpense(0);
-        
-        //Create new clock object
+
+        // Create new clock object
         gameClock = new Clock();
 
-        //Create new gridStack array list
+        // Create new gridStack array list
         gridStack = new ArrayList<>();
         warningStack = new ArrayList<>();
 
-        //Initialize variables
+        // Initialize variables
         mouseCooldownTime = 0;
         clockUpdateTime = 0;
         infoCounter = 5000;
@@ -82,47 +125,23 @@ public class TMMgame extends BasicGameState {
         policeBuildCost = 0;
         endGameCooldownTime = 1000;
 
-        //Create new Zone Type array
+        // Create new Zone Type array
         gameGrid = new ZoneType[(int) ((1680 - 229) / gridSpacing)][(int) ((927 - 9) / gridSpacing)];
 
-        //Create new game bank object
+        // Create new game bank object
         gameBank = new Bank();
 
-        //Get background image GameBackground.png and create new image object
-        backgroundgraphic = new Image("tmmcity\\gameBackground.png");
-        loanGraphic = new Image("tmmcity\\loanButtons.png");
-        taxGraphic = new Image("tmmcity\\taxButtons.png");
-        gameWin = new Image("tmmcity\\TMMGameOverWin.png");
-        gameLossD = new Image("tmmcity\\GameOverLossDebt.png");
-        gameLossP = new Image("tmmcity\\GameOverLossPop.png");
-        endGameConfirm = new Image("tmmcity\\endGameConfirm.png");
+        setResources();
+        setSprites();
 
-        //Get and declare icons from spritesheet
-        icons = new SpriteSheet("tmmcity\\zone\\spriteSheet.png", 50, 50); //set tile size as 50x50
-        resImg = icons.getSprite(0, 0);
-        comImg = icons.getSprite(2, 2);
-        indImg = icons.getSprite(0, 1);
-        recImg = icons.getSprite(1, 0); //Icons made by https://www.flaticon.com/authors/smashicons Smashicons from www.flaticon.com
-        policeImg = icons.getSprite(0, 2); //Icon made by https://www.flaticon.com/authors/eucalyp Eucalyp from www.flaticon.com, PUT IN CREDITS                                                    //Taylor
-        hospitalImg = icons.getSprite(2, 1); //Icon made by https://www.freepik.com/ Freepik from www.flaticon.com
-        waterImg = icons.getSprite(1, 2);//Icons made by https://www.freepik.com/ Freepik from www.flaticon.com
-        electricImg = icons.getSprite(1, 1);//Icons made by https://www.freepik.com/ Freepik from www.flaticon.com
-        roadImg = icons.getSprite(2, 0);
-        recImg1 = icons.getSprite(3, 0);
-        recImg2 = icons.getSprite(3, 1);
-        bullDozerImg = icons.getSprite(3, 2);
-        noPolice = icons.getSprite(4, 0);
-        noRevenue = icons.getSprite(4, 2);
-        noWater = icons.getSprite(4, 3);
-        noElectricity = icons.getSprite(0, 3);
-        noHospital = icons.getSprite(1, 3);
-
-        //Initialize strings for information output
-        infoLine2Default = "Total industrial: " + IndustrialZone.getTotalCommercialAvailable() + "\nTotal Commercial: " + CommercialZone.getTotalJobs() + "\nJobs available for residents " + CommercialZone.getTotalJobsAvailable() + "\nJobs in use: " + ResidentialZone.getTotalJobsInUse();
+        // Initialize strings for information output
+        infoLine2Default = "Total industrial: " + IndustrialZone.getTotalCommercialAvailable() + "\nTotal Commercial: "
+                + CommercialZone.getTotalJobs() + "\nJobs available for residents "
+                + CommercialZone.getTotalJobsAvailable() + "\nJobs in use: " + ResidentialZone.getTotalJobsInUse();
         infoLine1 = "";
-        infoLine2 = "";  //Taylor
+        infoLine2 = ""; // Taylor
 
-        //Initialize booleans
+        // Initialize booleans
         displayLoan = false;
         displayTax = false;
         inGrid = true;
@@ -132,29 +151,29 @@ public class TMMgame extends BasicGameState {
         displayGameLossD = false;
         displayGameLossP = false;
 
-        //Try to initialize the font Adore64
+        // Try to initialize the font Adore64
         try {
-            //Get font .tff as input stream
+            // Get font .tff as input stream
             InputStream inputStream = ResourceLoader.getResourceAsStream("tmmcity\\Adore64.ttf");
 
-            //Set font as awtFont
+            // Set font as awtFont
             Font awtFont = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 
-            //Derive the awtFont with size 20
+            // Derive the awtFont with size 20
             awtFont = awtFont.deriveFont(20f); // set Adore64 size
 
-            //Create new Adore64 font object
+            // Create new Adore64 font object
             Adore64 = new TrueTypeFont(awtFont, false);
 
-        } //Catch and print stack trace of exceptions
+        } // Catch and print stack trace of exceptions
         catch (Exception e) {
             e.printStackTrace();
         }
 
-        //set difficulty depending on settings choice
+        // set difficulty depending on settings choice
         difficulty = TMMsettings.getDifficulty();
 
-        //Set gamebank starting money based on difficulty
+        // Set gamebank starting money based on difficulty
         switch (difficulty) {
             case 1:
                 gameBank.setMoney(100000.0);
@@ -172,11 +191,60 @@ public class TMMgame extends BasicGameState {
                 break;
         }
 
-        //Calculate gameBank interest based on difficulty
+        // Calculate gameBank interest based on difficulty
         gameBank.calculateInterest(difficulty);
-        
-        
-                
+
+    }
+
+    /**
+     * Get and declare icons from spritesheet
+     * Icons made by https://www.flaticon.com/authors/smashicons Smashicons
+     * Icon made by https://www.flaticon.com/authors/eucalyp Eucalyp
+     * Icons made by https://www.freepik.com/ Freepik
+     * www.flaticon.com
+     */
+    private void setSprites() {
+        try {
+            icons = new SpriteSheet("tmmcity\\zone\\spriteSheet.png", 50, 50);  // set tile size as 50x50, this is what they are rendered as in file
+            resImg = icons.getSprite(0, 0);
+            comImg = icons.getSprite(2, 2);
+            indImg = icons.getSprite(0, 1);
+            recImg = icons.getSprite(1, 0); 
+            policeImg = icons.getSprite(0, 2);
+            hospitalImg = icons.getSprite(2, 1);
+            waterImg = icons.getSprite(1, 2);
+            electricImg = icons.getSprite(1, 1);
+            roadImg = icons.getSprite(2, 0);
+            recImg1 = icons.getSprite(3, 0);
+            recImg2 = icons.getSprite(3, 1);
+            bullDozerImg = icons.getSprite(3, 2);
+            noPolice = icons.getSprite(4, 0);
+            noRevenue = icons.getSprite(4, 2);
+            noWater = icons.getSprite(4, 3);
+            noElectricity = icons.getSprite(0, 3);
+            noHospital = icons.getSprite(1, 3);
+        } catch (SlickException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    /**
+     * Get background image GameBackground.png and create new image object
+     */
+    private void setResources() {
+        try {
+            backgroundgraphic = new Image("tmmcity\\gameBackground.png");
+            loanGraphic = new Image("tmmcity\\loanButtons.png");
+            taxGraphic = new Image("tmmcity\\taxButtons.png");
+            gameWin = new Image("tmmcity\\TMMGameOverWin.png");
+            gameLossD = new Image("tmmcity\\GameOverLossDebt.png");
+            gameLossP = new Image("tmmcity\\GameOverLossPop.png");
+            endGameConfirm = new Image("tmmcity\\endGameConfirm.png");
+        } catch (SlickException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     //Renders game state

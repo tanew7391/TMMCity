@@ -1,6 +1,6 @@
 /*
  * Matthew Reid
- * December 21,2018 
+ * December 21,2018
  * Main class that runs on start and initializes the game
  */
 package tmmcity;
@@ -20,18 +20,20 @@ public class TMMcity extends StateBasedGame {
     public static final int credit =3;
     public static final int high = 4;
     public static final int settings = 5;
-    
+
     //Game properites
-    public static final int width = 1680;
-    public static final int height = 1080;
-    
-    //Double for version number (Final Release 1.0)
-    public static final double version = 1.0;
-    
+    private int width;
+    private int height;
+
+    //Double for version number (Final Release 1.0): extented release = 1.01
+    public static final double version = 1.01;
+
     //Class constructor for TMMcity game
     public TMMcity(String gamename)
     {
         super(gamename);
+        width = 1680;
+        height = 1050;
         this.addState(new TMMsplash(splash));
         this.addState(new TMMmenu(menu));
         this.addState(new TMMgame(game));
@@ -39,7 +41,23 @@ public class TMMcity extends StateBasedGame {
         this.addState(new TMMhighscore(high));
         this.addState(new TMMsettings(settings));
     }
-    
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int newWidth) {
+		width = newWidth;
+    }
+
+    public int getHeight() {
+		return height;
+	}
+
+    public void setHeight(int newHeight) {
+		height = newHeight;
+	}
+
     //Initialize game states (calls init function in all game states)
     public void initStatesList(GameContainer gc) throws SlickException
     {
@@ -51,32 +69,34 @@ public class TMMcity extends StateBasedGame {
         this.getState(settings).init(gc,this);
         //Start by entering the splash screen state
         this.enterState(splash);
-    }    
-    
+    }
+
     //Main mehtod
     public static void main(String[] args)
     {
         //Declare app container
         AppGameContainer appgc;
-        
-        //Try
+        TMMcity gameInstance = new TMMcity(gamename + " " + version);
+
+
+
         try
         {
             //Make a new AGC with gamename and version number
-            appgc = new AppGameContainer(new TMMcity(gamename + " " + version));
+            appgc = new AppGameContainer(gameInstance);
+            gameInstance.setHeight(appgc.getScreenHeight());
+            gameInstance.setWidth(appgc.getScreenWidth());
             //Set display mode to correct ascept ratio, false fullscreen
-            appgc.setDisplayMode (width, height, false);
+            appgc.setDisplayMode (gameInstance.getWidth(), gameInstance.getHeight(), false);
             //Disable FPS display
             appgc.setShowFPS(false);
             //Start the game container
             appgc.start();
         }
-        //Catch any exceptions
         catch(SlickException e)
         {
-            //Print the exception
             e.printStackTrace();
         }
     }
-    
+
 }
