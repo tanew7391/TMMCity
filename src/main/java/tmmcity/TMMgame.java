@@ -20,12 +20,10 @@ import static tmmcity.ZoneType.randomIntBetween;
 //TMMgame class extends BasicGameState from Slick2D library
 public class TMMgame extends BasicGameState {
 
-    // Constructor for game state
-    public TMMgame(int state) {
-    }
-
     private static final int gridSpacing = 50; // grid spacing in pixels, set to 50, if need to change, many dimensions
                                                // need to change
+
+    private TMMcity gameInstance;
 
     // Declare variables
     private static String infoLine1, infoLine2, infoLine2Default; // Information strings
@@ -85,12 +83,20 @@ public class TMMgame extends BasicGameState {
     private Image noHospital;
     private Image endGameConfirm; // images
     private SpriteSheet icons; // Spritesheet with game icons
-    private TrueTypeFont Adore64; // Font object
+    private TrueTypeFont mainFont; // Font object
     private static Bank gameBank; // Bank object
     private ArrayList<int[]> gridStack, warningStack; // Arraylist for grid stack, and warning icons
     private static Clock gameClock; // Clock object
     private static int difficulty;
     private double score;
+
+    /**
+     * Default constructor, links TMMcity instance to game instance for some functions.
+     * @param newInstance (TMMcity) main game instance.
+     */
+    public TMMgame(TMMcity newInstance) {
+        gameInstance = newInstance;
+    }
 
     // Initializer for game state
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
@@ -151,48 +157,9 @@ public class TMMgame extends BasicGameState {
         displayGameLossD = false;
         displayGameLossP = false;
 
-        // Try to initialize the font Adore64
-        try {
-            // Get font .tff as input stream
-            InputStream inputStream = ResourceLoader.getResourceAsStream("tmmcity\\Adore64.ttf");
+        setFont("tmmcity\\Adore64.ttf", 20f);
 
-            // Set font as awtFont
-            Font awtFont = Font.createFont(Font.TRUETYPE_FONT, inputStream);
-
-            // Derive the awtFont with size 20
-            awtFont = awtFont.deriveFont(20f); // set Adore64 size
-
-            // Create new Adore64 font object
-            Adore64 = new TrueTypeFont(awtFont, false);
-
-        } // Catch and print stack trace of exceptions
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // set difficulty depending on settings choice
-        difficulty = TMMsettings.getDifficulty();
-
-        // Set gamebank starting money based on difficulty
-        switch (difficulty) {
-            case 1:
-                gameBank.setMoney(100000.0);
-                break;
-            case 2:
-                gameBank.setMoney(15000.0);
-                break;
-            case 3:
-                gameBank.setMoney(10000.0);
-                break;
-            case 4:
-                gameBank.setMoney(10000.0);
-                break;
-            default:
-                break;
-        }
-
-        // Calculate gameBank interest based on difficulty
-        gameBank.calculateInterest(difficulty);
+        setUpBank();
 
     }
 
@@ -247,6 +214,53 @@ public class TMMgame extends BasicGameState {
         }
     }
 
+    private void setUpBank(){
+                // set difficulty depending on settings choice
+                difficulty = TMMsettings.getDifficulty();
+
+                // Set gamebank starting money based on difficulty
+                switch (difficulty) {
+                    case 1:
+                        gameBank.setMoney(100000.0);
+                        break;
+                    case 2:
+                        gameBank.setMoney(15000.0);
+                        break;
+                    case 3:
+                        gameBank.setMoney(10000.0);
+                        break;
+                    case 4:
+                        gameBank.setMoney(10000.0);
+                        break;
+                    default:
+                        break;
+                }
+        
+                // Calculate gameBank interest based on difficulty
+                gameBank.calculateInterest(difficulty);
+    }
+
+    private void setFont(String fontName, float fontSize){
+        // Try to initialize the font Adore64
+        try {
+            // Get font .tff as input stream
+            InputStream inputStream = ResourceLoader.getResourceAsStream(fontName);
+
+            // Set font as awtFont
+            Font awtFont = Font.createFont(Font.TRUETYPE_FONT, inputStream);
+
+            // Derive the awtFont with size 20
+            awtFont = awtFont.deriveFont(fontSize); // set Adore64 size
+
+            // Create new Adore64 font object
+            mainFont = new TrueTypeFont(awtFont, false);
+
+        } // Catch and print stack trace of exceptions
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     //Renders game state
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
 
@@ -272,7 +286,7 @@ public class TMMgame extends BasicGameState {
         }
 
         //Set the font to Adore64
-        g.setFont(Adore64);
+        g.setFont(mainFont);
 
         //Draw string reprentation of the clock date and time
         g.drawString(gameClock.toStringDate(), 40, 960);
@@ -419,7 +433,7 @@ public class TMMgame extends BasicGameState {
                         writeHighScore();
                         
                         //Set firstGame to true to disable continue button
-                        TMMmenu.firstGame = true;
+                        gameInstance.getMenuBaseGameState().setFirstGame(true);
                         
                         //Enter menu state
                         sbg.enterState(1, new FadeOutTransition(),
@@ -520,7 +534,7 @@ public class TMMgame extends BasicGameState {
             //Subtract delta from endgame cooldown
             endGameCooldownTime -= delta;
             //Set first game to true to disable continue button
-            TMMmenu.firstGame = true;
+            gameInstance.getMenuBaseGameState().setFirstGame(true);
             //set display game win graphic to true
             displayGameWin = true;
 
@@ -542,8 +556,6 @@ public class TMMgame extends BasicGameState {
             updateSpeed = 0;
             //Subtract delta from endgame cooldown
             endGameCooldownTime -= delta;
-            //Set first game to true to disable continue button
-            TMMmenu.firstGame = true;
             //set display debt game loss graphic to true
             displayGameLossD = true;
 
@@ -565,7 +577,7 @@ public class TMMgame extends BasicGameState {
             //Subtract delta from endgame cooldown
             endGameCooldownTime -= delta;
             //Set first game to true to disable continue button
-            TMMmenu.firstGame = true;
+            gameInstance.getMenuBaseGameState().setFirstGame(true);
             //set display pop game loss graphic to true
             displayGameLossP = true;
 

@@ -14,7 +14,7 @@ import org.newdawn.slick.util.ResourceLoader;
 public class TMMhighscore extends BasicGameState {
     
     //Constructor for game state
-    public TMMhighscore(int state){
+    public TMMhighscore(){
     }
     
     //Declare font

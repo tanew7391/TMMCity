@@ -16,7 +16,7 @@ import java.awt.Font;
 public class TMMcredits extends BasicGameState {
 
     //Constructor for game state
-    public TMMcredits(int state) {
+    public TMMcredits() {
     }
 
     //Declare font
