@@ -110,10 +110,22 @@ public class TMMgame extends BasicGameState {
     private static int[] buildingButtonBoundsX = {9, 106, 119, 216};
     private static int[] buildingButtonBoundsY = {124, 219, 235, 331, 349, 447, 462, 560, 575, 674};
     private static int[] bankButtonsBoundsY = {695, 740, 747, 790, 797, 843, 865, 912};
-    private static int[] speedButtonsBoundsX = {};
-    private static int[] speedButtonsBoundsY = {};
+    private static int[] speedButtonsBoundsX = {285, 330};
+    private static int[] speedButtonsBoundsY = {926, 970};
     private static int[] mainMenuButtonsBoundsX = {};
     private static int[] mainMenuButtonsBoundsY = {};
+
+    private static final int residentialBuildType = 0;
+    private static final int commericalBuildType = 1;
+    private static final int industrialBuildType = 2;
+    private static final int policeBuildType = 3;
+    private static final int hospitalBuildType = 4;
+    private static final int electricityBuildType = 5;
+    private static final int waterBuildType = 6;
+    private static final int recreationalBuildType = 7;
+    private static final int roadBuildType = 8;
+    private static final int removalBuildType = 9;
+
 
     /**
      * Default constructor, links TMMcity instance to game instance for some functions.
@@ -176,12 +188,20 @@ public class TMMgame extends BasicGameState {
         displayTax = false;
         inGrid = true;
         buildItemSelected = false;
-        firstRoad = true;
         displayGameWin = false;
         displayGameLossD = false;
         displayGameLossP = false;
         setFont("tmmcity\\Adore64.ttf", 20f);
         setUpBank();
+        firstRoad = true;
+        buildStartingRoad();
+    }
+
+    @Override
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        goToMenu = false;
+        displayEndGameConfirm = false;
+        endGameButton = false;
     }
 
     /**
@@ -401,11 +421,6 @@ public class TMMgame extends BasicGameState {
         }
     }
 
-    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-        goToMenu = false;
-        displayEndGameConfirm = false;
-    }
-
     @Override
     public void mousePressed(int button, int xpos, int ypos) {
         System.out.println(xpos + " " + ypos);
@@ -491,11 +506,6 @@ public class TMMgame extends BasicGameState {
                 //Reset update time counter to 0
                 clockUpdateTime = 0;
             }
-        }
-        //While it is the first road,
-        while (firstRoad) {                                                                                                                                 //Taylor
-            //Build the starting road
-            buildStartingRoad();
         }
 
         //If a build item is selected
@@ -663,9 +673,9 @@ public class TMMgame extends BasicGameState {
                 skipMonthEnd();
             }
         } else if (inGrid && buildItemSelected) { //check if mouse is in the grid with a build object
-            if (gameBank.getMoney() >= buildCost || buildType == 9) { //check if either the player has enough money to build, or they are destroying something
+            if (gameBank.getMoney() >= buildCost || buildType == removalBuildType) { //check if either the player has enough money to build, or they are destroying something
                 if (gameGrid[gridX][gridY] == null && (roadCheck(gridX, gridY) || buildType == 9)) { //check if grid is empty, and the location is next to an existing road
-                    if (buildType != 9) {
+                    if (buildType != removalBuildType) {
                         buildItem(gridX, gridY, buildType);
                     } else {
                         infoLine1 = "Nothing here to demolish!"; //if selected grid is null
@@ -761,35 +771,35 @@ public class TMMgame extends BasicGameState {
 
     void buildItem(int x, int y, int buildType) { //build item method which sets coordinates on the grid to one of the build objects
         switch (buildType) { //the build type determines the type of object, the x and y coordinates determine location. Mouse image is the image set by the zone build item select methods
-            case 0:  //switch statement is used to run through each case
+            case residentialBuildType:  //switch statement is used to run through each case
                 gameGrid[x][y] = new ResidentialZone(mouseImage, x, y);
                 break;
-            case 1:
+            case commericalBuildType:
                 gameGrid[x][y] = new CommercialZone(mouseImage, x, y);
                 break;
-            case 2:
+            case industrialBuildType:
                 gameGrid[x][y] = new IndustrialZone(mouseImage, x, y);
                 break;
-            case 3:
+            case policeBuildType:
                 policeBuildItemSelected(); //just to push the increased value
-                policeBuildCost += 300; //increases each time you build
+                policeBuildCost += 300; //increases each time you build //TODO: make class variable
                 gameGrid[x][y] = new Police(mouseImage, x, y, difficulty);
                 break;
-            case 4:
+            case hospitalBuildType:
                 hospitalBuildItemSelected(); //just to push the increased value
                 hospitalBuildCost += 300; //increases each time you build
                 gameGrid[x][y] = new Hospital(mouseImage, x, y, difficulty);                                                                                                //Taylor
                 break;
-            case 5:
+            case electricityBuildType:
                 gameGrid[x][y] = new Electricity(mouseImage, x, y, difficulty);
                 break;
-            case 6:
+            case waterBuildType:
                 gameGrid[x][y] = new Water(mouseImage, x, y, difficulty);
                 break;
-            case 7:
+            case recreationalBuildType:
                 gameGrid[x][y] = new RecreationalZone(mouseImage, x, y, recAttractionMax, difficulty); //recAttractionMax
                 break;
-            case 8:
+            case roadBuildType:
                 if (roadCheck(x, y) || firstRoad) { //check if the road is being placed near another road, or if it is the first road built
                     gameGrid[x][y] = new Road(mouseImage, x, y);
                     infoLine1 = "";
@@ -797,7 +807,7 @@ public class TMMgame extends BasicGameState {
                     infoLine1 = "Please place near road";
                 }
                 break;
-            case 9: //removal case
+            case removalBuildType: //removal case
                 if (gameGrid[x][y] instanceof CommercialZone) { //if removing a commercial zone
                     CommercialZone.setTotalJobs(CommercialZone.getTotalJobs() - ((CommercialZone) gameGrid[x][y]).getJobsCreated()); //remove jobs created by this commercialZone
                     CommercialZone.removeCommercialStack((CommercialZone) gameGrid[x][y]); //remove the commercial zone located at x, y
@@ -832,7 +842,7 @@ public class TMMgame extends BasicGameState {
 
         }
 
-        if (buildType == 9) { //if the remove build type option was chosen, or case 10, the object is removed from the array
+        if (buildType == removalBuildType) { //if the remove build type option was chosen, or case 10, the object is removed from the array
             //System.out.println(gridStack.indexOf(arg1)); //this only returns a -1, have to search
             for (int i = 0; i < gridStack.size(); i++) {
                 if (x == gridStack.get(i)[0] && y == gridStack.get(i)[1]) {  //unfortunatly you are unable to use gridStack.remove(int[] object) for some reason, so you must do a quick search for the value
@@ -867,59 +877,57 @@ public class TMMgame extends BasicGameState {
 
     void residentBuildItemSelected() { //methods which set build item selected to true and then initialize the variables required to build each object
         buildItemSelected = true;      //The update method checks continiously to see if build item selected is true, if so the object is built using these variables
-        buildType = 0;
+        buildType = residentialBuildType;
         buildCost = 200;
         mouseImage = resImg;
     }
 
     void commercialBuildItemSelected() {
         buildItemSelected = true;
-        buildType = 1;
+        buildType = commericalBuildType;
         buildCost = 200;
         mouseImage = comImg;
     }
 
     void industrialBuildItemSelected() {
         buildItemSelected = true;
-        buildType = 2;
+        buildType = industrialBuildType;
         buildCost = 200;
         mouseImage = indImg;
     }
 
     void policeBuildItemSelected() {
         buildItemSelected = true;
-        buildType = 3;
+        buildType = policeBuildType;
         buildCost = 500 + policeBuildCost;
         mouseImage = policeImg;
     }
 
     void hospitalBuildItemSelected() {
         buildItemSelected = true;
-        buildType = 4;
+        buildType = hospitalBuildType;
         buildCost = 500 + hospitalBuildCost;
         mouseImage = hospitalImg;
     }
 
     void electricBuildItemSelected() {
         buildItemSelected = true;
-        buildType = 5;
+        buildType = electricityBuildType;
         buildCost = 2000;
         mouseImage = electricImg;
     }
 
     void waterBuildItemSelected() {
         buildItemSelected = true;
-        buildType = 6;
+        buildType = waterBuildType;
         buildCost = 2000;
         mouseImage = waterImg;
     }
 
     void recreationalBuildItemSelected() {
         buildItemSelected = true;
-        buildType = 7;
-        int rand = randomIntBetween(2, 0);
-        System.out.println(rand);
-        switch (rand) {
+        buildType = recreationalBuildType;
+        switch (randomIntBetween(2, 0)) {
             case 0:
                 mouseImage = recImg; //make a different recreational image for each of these situations, just to add variety
                 recAttractionMax = 60;
@@ -940,18 +948,18 @@ public class TMMgame extends BasicGameState {
         }
     }
 
-    void removeBuildItemSelected() {
-        buildItemSelected = true;
-        buildType = 9;
-        buildCost = -100;
-        mouseImage = bullDozerImg;
-    }
-
     void roadBuildItemSelected() {
         buildItemSelected = true;
-        buildType = 8;
+        buildType = roadBuildType;
         buildCost = 100;
         mouseImage = roadImg;
+    }
+
+    void removeBuildItemSelected() {
+        buildItemSelected = true;
+        buildType = removalBuildType;
+        buildCost = -100;
+        mouseImage = bullDozerImg;
     }
 
     void residentialWarning(ResidentialZone tempResZone) { //residential warning symbols
