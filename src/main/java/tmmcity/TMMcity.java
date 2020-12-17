@@ -5,9 +5,10 @@
  */
 package tmmcity;
 
-//Imports from Slick2D library
-import org.newdawn.slick.*;
-import org.newdawn.slick.state.*;
+import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.state.StateBasedGame;
 
 //Class TMMcity extends StateBasedGame from Slick2D library to allow menu to function
 public class TMMcity extends StateBasedGame {
@@ -90,8 +91,7 @@ public class TMMcity extends StateBasedGame {
     }
 
     //Initialize game states (calls init function in all game states)
-    public void initStatesList(GameContainer gc) throws SlickException
-    {
+    public void initStatesList(GameContainer gc) throws SlickException {
         this.getState(splash).init(gc,this);
         this.getState(menu).init(gc, this);
         this.getState(game).init(gc, this);
@@ -103,8 +103,7 @@ public class TMMcity extends StateBasedGame {
     }
 
     //Main mehtod
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         //Declare app container
         AppGameContainer appgc;
         TMMcity gameInstance = new TMMcity(gamename + " " + version);

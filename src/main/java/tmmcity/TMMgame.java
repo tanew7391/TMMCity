@@ -8,12 +8,27 @@ package tmmcity;
 
 //Required imports
 import org.lwjgl.input.Mouse;
-import org.newdawn.slick.*;
-import org.newdawn.slick.state.*;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.state.BasicGameState;
+import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.state.transition.FadeInTransition;
+import org.newdawn.slick.state.transition.FadeOutTransition;
+import org.newdawn.slick.Input;
 import java.awt.Font;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import org.newdawn.slick.state.transition.*;
 import org.newdawn.slick.util.ResourceLoader;
 import static tmmcity.ZoneType.randomIntBetween;
 
@@ -749,7 +764,7 @@ public class TMMgame extends BasicGameState {
                 hospitalBuildItemSelected(); //just to push the increased value
                 hospitalBuildCost += 300; //increases each time you build
                 gameGrid[x][y] = new Hospital(mouseImage, x, y, difficulty);                                                                                                //Taylor
-                break;                                              
+                break;
             case 5:
                 gameGrid[x][y] = new Electricity(mouseImage, x, y, difficulty);
                 break;

@@ -8,9 +8,16 @@ package tmmcity;
 //Required Imports
 import java.io.InputStream;
 import org.lwjgl.input.Mouse;
-import org.newdawn.slick.*;
-import org.newdawn.slick.state.*;
-import org.newdawn.slick.state.transition.*;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.state.BasicGameState;
+import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.state.transition.FadeInTransition;
+import org.newdawn.slick.state.transition.FadeOutTransition;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.util.ResourceLoader;
 
 //Public class TMMSetting extends BasicGameState from the slick library

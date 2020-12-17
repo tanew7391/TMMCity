@@ -6,8 +6,9 @@
 
 package tmmcity;
 
+import java.text.DecimalFormat;
+
 //Import required for text formatting
-import java.text.*;
 
 public class Clock {
 

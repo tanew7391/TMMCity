@@ -13,24 +13,22 @@ import org.newdawn.slick.Image;
  */
 public interface ZoneInterface {
     public int getXGrid();
-    
+
     public int getYGrid();
-    
+
     public void setXGrid(int x);
-    
+
     public void setYGrid(int y);
 
     public Image getImage();
-    
+
     public void setImage(Image img);
-    
+
     public double getAttraction();
-    
+
     public void setAttraction(double a);
-    
+
     @Override
     public String toString();
-
-        
 
 }
