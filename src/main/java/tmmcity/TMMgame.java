@@ -44,14 +44,10 @@ public class TMMgame extends BasicGameState {
     // Declare variables
     private static String infoLine1, infoLine2, infoLine2Default; // Information strings
 
-    private int mousey;
-    private int xpos;
-    private int ypos;
     private int gridX;
     private int gridY;
     private int buildCost;
     private int buildType;
-    private int mouseCooldownTime;
     private int updateSpeed;
     private int clockUpdateTime;
     private int recAttractionMax;
@@ -107,8 +103,17 @@ public class TMMgame extends BasicGameState {
     private double score;
 
     private boolean goToMenu;
-    private static final int[] gameOverButtonBoundsX = {418, 801, 875, 1256};
-    private static final int[] gameOverButtonBoundsY = {551, 633};
+    private boolean endGameButton;
+
+    private static int[] gameOverButtonBoundsX = {418, 801, 875, 1256};
+    private static int[] gameOverButtonBoundsY = {551, 633};
+    private static int[] buildingButtonBoundsX = {9, 106, 119, 216};
+    private static int[] buildingButtonBoundsY = {124, 219, 235, 331, 349, 447, 462, 560, 575, 674};
+    private static int[] bankButtonsBoundsY = {695, 740, 747, 790, 797, 843, 865, 912};
+    private static int[] speedButtonsBoundsX = {};
+    private static int[] speedButtonsBoundsY = {};
+    private static int[] mainMenuButtonsBoundsX = {};
+    private static int[] mainMenuButtonsBoundsY = {};
 
     /**
      * Default constructor, links TMMcity instance to game instance for some functions.
@@ -142,7 +147,6 @@ public class TMMgame extends BasicGameState {
         warningStack = new ArrayList<>();
 
         // Initialize variables
-        mouseCooldownTime = 0;
         clockUpdateTime = 0;
         infoCounter = 5000;
         info2Counter = 5000;
@@ -176,11 +180,8 @@ public class TMMgame extends BasicGameState {
         displayGameWin = false;
         displayGameLossD = false;
         displayGameLossP = false;
-
         setFont("tmmcity\\Adore64.ttf", 20f);
-
         setUpBank();
-
     }
 
     /**
@@ -283,6 +284,8 @@ public class TMMgame extends BasicGameState {
 
     //Renders game state
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
+        int xpos = Mouse.getX();
+        int mousey = gc.getHeight() - Mouse.getY();
 
         //Draw background image at 0,0
         g.drawImage(backgroundgraphic, 0, 0);
@@ -408,10 +411,14 @@ public class TMMgame extends BasicGameState {
         System.out.println(xpos + " " + ypos);
         if (button == Input.MOUSE_RIGHT_BUTTON){
             stopBuilding();
+        } else if (button == Input.MOUSE_LEFT_BUTTON){
+            if(displayEndGameConfirm){
+                getEndGameButtonInput(xpos, ypos); //menu for ending game
+            } else {
+                mouseClick(xpos, ypos); //handle left click
+            }
         }
-        if(displayEndGameConfirm && button == Input.MOUSE_LEFT_BUTTON){
-            getEndGameButtonInput(xpos, ypos);
-        }
+
     }
 
     private void stopBuilding(){
@@ -449,11 +456,8 @@ public class TMMgame extends BasicGameState {
     //Updates game state
     public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
 
-        //Variables for tracking the mouse
-        mousey = gc.getHeight() - Mouse.getY(); //grab the position at which objects are drawn at (different than where the mouse is located at)
-        xpos = Mouse.getX(); //mouse x
-        ypos = Mouse.getY();//mouse y
-        input = gc.getInput(); //mouse click
+        int mousey = gc.getHeight() - Mouse.getY();
+        int xpos = Mouse.getX();
         inGrid = true;
 
         //Variable to track grid x and y
@@ -469,15 +473,8 @@ public class TMMgame extends BasicGameState {
         //Add delta to time since last clock update (delta is milliseconds since update was last run)
         clockUpdateTime += delta;
 
-        //cooldowntime reduces the spam created by running mouseClick many times a second while the mouse is down
-        //Subtract delta from mouse cooldown time (delta is time in ms since last update loop)
-        mouseCooldownTime -= delta;
-        //If the mouse is clicked and the cooldown is less than or equal to 0
-        if (input.isMouseButtonDown(0) && mouseCooldownTime <= 0 && !displayEndGameConfirm) {
-            //Call mouse click method
-            mouseClick(sbg);
-            //Set mouse cooldown time to 150
-            mouseCooldownTime = 150;
+        if(endGameButton){
+            sbg.enterState(TMMcity.menu, new FadeOutTransition(), new FadeInTransition());
         }
 
         if(goToMenu){
@@ -498,10 +495,7 @@ public class TMMgame extends BasicGameState {
         //While it is the first road,
         while (firstRoad) {                                                                                                                                 //Taylor
             //Build the starting road
-            roadBuildItemSelected();
-            buildItem(0, 9, buildType);
-            firstRoad = false;
-            buildItemSelected = false;
+            buildStartingRoad();
         }
 
         //If a build item is selected
@@ -623,39 +617,51 @@ public class TMMgame extends BasicGameState {
 
     }
 
-    //Method for mouse click inputs
-    void mouseClick(StateBasedGame sbg) throws SlickException {
-        if ((xpos > 9) && (xpos < 106) && ypos > 407) {
-            if ((ypos > 860) && (ypos < 957)) {
-                residentBuildItemSelected();
-            } else if ((ypos > 748) && (ypos < 846)) {
-                industrialBuildItemSelected();
-            } else if ((ypos > 636) && (ypos < 733)) {
-                hospitalBuildItemSelected();
-            } else if ((ypos > 521) && (ypos < 619)) {
-                electricBuildItemSelected();
-            } else if ((ypos > 407) && (ypos < 505)) {                                                                                                                              //Taylor
-                roadBuildItemSelected();
+    private void buildStartingRoad() {
+        roadBuildItemSelected();
+        buildItem(0, 9, buildType);
+        firstRoad = false;
+        buildItemSelected = false;
+    }
+
+    private void handleLeftBuildButtons(int xpos, int ypos){
+        if ((ypos > buildingButtonBoundsY[0]) && (ypos < buildingButtonBoundsY[1])) {
+            residentBuildItemSelected();
+        } else if ((ypos > buildingButtonBoundsY[2]) && (ypos < buildingButtonBoundsY[3])) {
+            industrialBuildItemSelected();
+        } else if ((ypos > buildingButtonBoundsY[4]) && (ypos < buildingButtonBoundsY[5])) {
+            hospitalBuildItemSelected();
+        } else if ((ypos > buildingButtonBoundsY[6]) && (ypos < buildingButtonBoundsY[7])) {
+            electricBuildItemSelected();
+        } else if ((ypos > buildingButtonBoundsY[8]) && (ypos < buildingButtonBoundsY[9])) {                                                                                                                              //Taylor
+            roadBuildItemSelected();
+        }
+    }
+
+    private void handleRightBuildButtons(int xpos, int ypos){
+        if ((ypos > buildingButtonBoundsY[0]) && (ypos < buildingButtonBoundsY[1])) {
+            commercialBuildItemSelected();
+        } else if ((ypos > buildingButtonBoundsY[2]) && (ypos < buildingButtonBoundsY[3])) {
+            policeBuildItemSelected();
+        } else if ((ypos > buildingButtonBoundsY[4]) && (ypos < buildingButtonBoundsY[5])) {
+            waterBuildItemSelected();
+        } else if ((ypos > buildingButtonBoundsY[6]) && (ypos < buildingButtonBoundsY[7])) {
+            recreationalBuildItemSelected();
+        } else if ((ypos > buildingButtonBoundsY[8]) && (ypos < buildingButtonBoundsY[9])) {                                                                                                                              //Taylor
+            removeBuildItemSelected();
+        }
+    }
+
+    // Method for mouse click inputs
+    private void mouseClick(int xpos, int ypos) {
+        if ((xpos > buildingButtonBoundsX[0]) && (xpos < buildingButtonBoundsX[3])) {
+            if(xpos < buildingButtonBoundsX[1]){
+                handleLeftBuildButtons(xpos, ypos);
+            } else if (xpos > buildingButtonBoundsX[2]) {  //need to put the ypos>407 so that buttons below the build area are available after the else if statement
+                handleRightBuildButtons(xpos, ypos);
+            } else if (ypos > bankButtonsBoundsY[6] && ypos < bankButtonsBoundsY[7]){
+                skipMonthEnd();
             }
-        } else if ((xpos > 119) && (xpos < 216) && ypos > 407) {  //need to put the ypos>407 so that buttons below the build area are available after the else if statement
-            if ((ypos > 860) && (ypos < 957)) {
-                commercialBuildItemSelected();
-                //System.out.println("com");
-            } else if ((ypos > 748) && (ypos < 846)) {
-                policeBuildItemSelected();
-                //System.out.println("gov");
-            } else if ((ypos > 636) && (ypos < 733)) {
-                waterBuildItemSelected();
-                //System.out.println("water");
-            } else if ((ypos > 512) && (ypos < 619)) {
-                recreationalBuildItemSelected();
-                //System.out.println("recreational");
-            } else if ((ypos > 407) && (ypos < 505)) {
-                removeBuildItemSelected();
-                //System.out.println("road");
-            }
-        } else if (xpos > 14 && xpos < 214 && ypos > 169 && ypos < 219) {
-            skipMonthEnd(); //skip to month end button
         } else if (inGrid && buildItemSelected) { //check if mouse is in the grid with a build object
             if (gameBank.getMoney() >= buildCost || buildType == 9) { //check if either the player has enough money to build, or they are destroying something
                 if (gameGrid[gridX][gridY] == null && (roadCheck(gridX, gridY) || buildType == 9)) { //check if grid is empty, and the location is next to an existing road
@@ -689,8 +695,7 @@ public class TMMgame extends BasicGameState {
 
             //MAIN MENU BUTTON
         } else if ((xpos > 1468 && xpos < 1670) && (ypos > 87 && ypos < 155)) {
-            sbg.enterState(1, new FadeOutTransition(), new FadeInTransition());
-
+            endGameButton = true;
             //END GAME BUTTON
         } else if ((xpos > 1468 && xpos < 1670) && (ypos > 10 && ypos < 79)) {
             displayEndGameConfirm = true;
@@ -754,7 +759,7 @@ public class TMMgame extends BasicGameState {
         }
     }
 
-    void buildItem(int x, int y, int buildType) throws SlickException { //build item method which sets coordinates on the grid to one of the build objects
+    void buildItem(int x, int y, int buildType) { //build item method which sets coordinates on the grid to one of the build objects
         switch (buildType) { //the build type determines the type of object, the x and y coordinates determine location. Mouse image is the image set by the zone build item select methods
             case 0:  //switch statement is used to run through each case
                 gameGrid[x][y] = new ResidentialZone(mouseImage, x, y);
@@ -1033,7 +1038,7 @@ public class TMMgame extends BasicGameState {
         return false; //failed to find a road
     }
 
-    public void roadDelete(int a, int b) throws SlickException {
+    public void roadDelete(int a, int b) {
         for (int x = -1; x <= 1; x++) { //check
             for (int y = -1; y <= 1; y++) {
                 if ((a + x >= 0 && a + x <= 28 && b + y >= 0 && b + y <= 17)) { //make sure its checking within the barriers of the grid as to avoid an array out of bounds exception

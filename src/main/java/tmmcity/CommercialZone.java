@@ -8,7 +8,6 @@ package tmmcity;
 
 import java.util.ArrayList;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
 
 /**
  *
@@ -25,7 +24,7 @@ public class CommercialZone extends ZoneType {
     private static int totalRevenueAvailable = 0; //total revenue that all stores are contributing to the city
     private static ArrayList<CommercialZone> commercialStack = new ArrayList<>(); //an array of all CommercialZone pointers
 
-    public CommercialZone(Image tileImg, int xGrid, int yGrid) throws SlickException { //main constructor
+    public CommercialZone(Image tileImg, int xGrid, int yGrid) { //main constructor
         super(tileImg, xGrid, yGrid, randomIntBetween(70, 50));   //random attractiveness between 100 and 50
         this.revenuePerYear = this.revenuePerYearAvailable = randomIntBetween(10000, 1000); //every business can create a revenue between 10000 and 1000
         this.jobsCreated = revenuePerYear / 1000; //jobs are based off of revenue                                                                                               //Taylor
