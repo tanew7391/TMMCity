@@ -6,6 +6,7 @@
  */
 package tmmcity;
 
+import org.lwjgl.Sys;
 //Required imports
 import org.lwjgl.input.Mouse;
 import org.newdawn.slick.GameContainer;
@@ -105,6 +106,10 @@ public class TMMgame extends BasicGameState {
     private static int difficulty;
     private double score;
 
+    private boolean goToMenu;
+    private static final int[] gameOverButtonBoundsX = {418, 801, 875, 1256};
+    private static final int[] gameOverButtonBoundsY = {551, 633};
+
     /**
      * Default constructor, links TMMcity instance to game instance for some functions.
      * @param newInstance (TMMcity) main game instance.
@@ -191,7 +196,7 @@ public class TMMgame extends BasicGameState {
             resImg = icons.getSprite(0, 0);
             comImg = icons.getSprite(2, 2);
             indImg = icons.getSprite(0, 1);
-            recImg = icons.getSprite(1, 0); 
+            recImg = icons.getSprite(1, 0);
             policeImg = icons.getSprite(0, 2);
             hospitalImg = icons.getSprite(2, 1);
             waterImg = icons.getSprite(1, 2);
@@ -250,7 +255,7 @@ public class TMMgame extends BasicGameState {
                     default:
                         break;
                 }
-        
+
                 // Calculate gameBank interest based on difficulty
                 gameBank.calculateInterest(difficulty);
     }
@@ -393,6 +398,54 @@ public class TMMgame extends BasicGameState {
         }
     }
 
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        goToMenu = false;
+        displayEndGameConfirm = false;
+    }
+
+    @Override
+    public void mousePressed(int button, int xpos, int ypos) {
+        System.out.println(xpos + " " + ypos);
+        if (button == Input.MOUSE_RIGHT_BUTTON){
+            stopBuilding();
+        }
+        if(displayEndGameConfirm && button == Input.MOUSE_LEFT_BUTTON){
+            getEndGameButtonInput(xpos, ypos);
+        }
+    }
+
+    private void stopBuilding(){
+        //If right click is inputted (for right click to stop building)
+        //Set build item selected to false
+        buildItemSelected = false;
+        //set info line default to proper amount
+        infoLine2Default = "Total industrial: " + IndustrialZone.getTotalCommercialAvailable() + "\nTotal Commercial: " + CommercialZone.getTotalJobs() + "\nJobs available for residents " + CommercialZone.getTotalJobsAvailable() + "\nJobs in use: " + ResidentialZone.getTotalJobsInUse();
+        //Clear the info string
+        infoLine2 = infoLine2Default;
+    }
+
+    private void getEndGameButtonInput(int xpos, int ypos){
+            //If the mouse is on the yes or no buttons and is clicked
+        if (ypos > gameOverButtonBoundsY[0] && ypos < gameOverButtonBoundsY[1])
+        {
+                //If it is on the no button
+                if (xpos > gameOverButtonBoundsX[2] && xpos < gameOverButtonBoundsX[3])
+                {
+                    //Set display end game to false
+                    displayEndGameConfirm = false;
+                }
+                else if (xpos > gameOverButtonBoundsX[0] && xpos < gameOverButtonBoundsX[1]) //Otherwise, if it is on the yes button
+                {
+                    writeHighScore();
+                    //Set firstGame to true to disable continue button
+                    gameInstance.getMenuBaseGameState().setFirstGame(true);
+                    //Enter menu state
+                    goToMenu = true;
+                }
+
+        }
+    }
+
     //Updates game state
     public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
 
@@ -427,51 +480,8 @@ public class TMMgame extends BasicGameState {
             mouseCooldownTime = 150;
         }
 
-        if (displayEndGameConfirm) { //when the end of the game has been reached
-            //If the mouse is on the yes or no buttons and is clicked
-            if (ypos > 445 && ypos < 530) 
-            {
-                if (input.isMouseButtonDown(0)) 
-                {
-                    //If it is on the no button
-                    if (xpos < 1255 && xpos > 874) 
-                    {
-                        //Set display end game to false
-                        displayEndGameConfirm = false;   
-                    } 
-                    
-                    //Otherwise, if it is on the yes button 
-                    else if (xpos < 800 && xpos > 419) 
-                    { 
-                        
-                        //Write highscore
-                        writeHighScore();
-                        
-                        //Set firstGame to true to disable continue button
-                        gameInstance.getMenuBaseGameState().setFirstGame(true);
-                        
-                        //Enter menu state
-                        sbg.enterState(1, new FadeOutTransition(),
-                                new FadeInTransition());
-                        
-                        //Set a new mouse cooldown to stop accidently button press
-                        mouseCooldownTime = 1500;
-                        
-                        //set display end game to false
-                        displayEndGameConfirm = false;
-                    }
-                }
-            }
-        }
-
-        //If right click is inputted (for right click to stop building)
-        if (input.isMouseButtonDown(1)) {
-            //Set build item selected to false                                                                                                          //Taylor
-            buildItemSelected = false;
-            //set info line default to proper amount
-            infoLine2Default = "Total industrial: " + IndustrialZone.getTotalCommercialAvailable() + "\nTotal Commercial: " + CommercialZone.getTotalJobs() + "\nJobs available for residents " + CommercialZone.getTotalJobsAvailable() + "\nJobs in use: " + ResidentialZone.getTotalJobsInUse();
-            //Clear the info string
-            infoLine2 = infoLine2Default;
+        if(goToMenu){
+            sbg.enterState(TMMcity.menu, new FadeOutTransition(), new FadeInTransition());
         }
 
         //If the update speed of the clock is not 0 or paused
@@ -510,11 +520,11 @@ public class TMMgame extends BasicGameState {
             displayLoan = false;
             displayTax = false;
         }
-        
+
         //If infocounter 2 is 0 or less
         if (info2Counter <= 0) {
             //Set InfoLine2 to default
-            infoLine2Default = 
+            infoLine2Default =
             infoLine2 = infoLine2Default;
             //Reset infocounter 2 to 5000;
             info2Counter = 5000;
@@ -560,11 +570,11 @@ public class TMMgame extends BasicGameState {
                 //Call writeHighScore;
                 writeHighScore();
                 //Enter the menu state
-                sbg.enterState(1, new FadeOutTransition(), new FadeInTransition());  
+                sbg.enterState(1, new FadeOutTransition(), new FadeInTransition());
             }
 
         }
-        
+
         //If the gamebanks has less than -5000
         if (gameBank.getMoney() <= -5000) {
             //Set update speed to 0
@@ -581,7 +591,7 @@ public class TMMgame extends BasicGameState {
                 //Call writeHighScore;
                 writeHighScore();
                 //Enter the menu state
-                sbg.enterState(1, new FadeOutTransition(), new FadeInTransition());  
+                sbg.enterState(1, new FadeOutTransition(), new FadeInTransition());
             }
         }
 
@@ -603,7 +613,7 @@ public class TMMgame extends BasicGameState {
                 //Call writeHighScore;
                 writeHighScore();
                 //Enter the menu state
-                sbg.enterState(1, new FadeOutTransition(), new FadeInTransition());  
+                sbg.enterState(1, new FadeOutTransition(), new FadeInTransition());
             }
         }
 
@@ -719,7 +729,7 @@ public class TMMgame extends BasicGameState {
             } else if (ypos < 51 && ypos > 15) { //big loan
                 gameBank.bigTax();
             }
-            displayLoan = false; 
+            displayLoan = false;
         }else if (xpos > 9 && xpos < 216) { //get loan, set tax rate and view bank info buttons
             if (ypos < 386 && ypos > 340) {
                 infoLine1 = gameBank.toString();
@@ -772,7 +782,7 @@ public class TMMgame extends BasicGameState {
                 gameGrid[x][y] = new Water(mouseImage, x, y, difficulty);
                 break;
             case 7:
-                gameGrid[x][y] = new RecreationalZone(mouseImage, x, y, recAttractionMax, difficulty); //recAttractionMax 
+                gameGrid[x][y] = new RecreationalZone(mouseImage, x, y, recAttractionMax, difficulty); //recAttractionMax
                 break;
             case 8:
                 if (roadCheck(x, y) || firstRoad) { //check if the road is being placed near another road, or if it is the first road built
@@ -1024,7 +1034,7 @@ public class TMMgame extends BasicGameState {
     }
 
     public void roadDelete(int a, int b) throws SlickException {
-        for (int x = -1; x <= 1; x++) { //check 
+        for (int x = -1; x <= 1; x++) { //check
             for (int y = -1; y <= 1; y++) {
                 if ((a + x >= 0 && a + x <= 28 && b + y >= 0 && b + y <= 17)) { //make sure its checking within the barriers of the grid as to avoid an array out of bounds exception
 
@@ -1085,7 +1095,7 @@ public class TMMgame extends BasicGameState {
             if (gameGrid[arg1[0]][arg1[1]] instanceof ResidentialZone) { //if that coordinate is a residential zone
 
                 ResidentialZone tempResidentialZone; //a temp residential zone is declared
-                tempResidentialZone = (ResidentialZone) gameGrid[arg1[0]][arg1[1]]; //temp residential zone is then initialized to the existing object     
+                tempResidentialZone = (ResidentialZone) gameGrid[arg1[0]][arg1[1]]; //temp residential zone is then initialized to the existing object
                 tempResidentialZone.happy(gameBank.getTax() * 75, tempResidentialZone.attractionCalc()); //happiness calculations are peformed for that zone, 50 multiplied by tax
                 tempResidentialZone.residency(); //residency is calculated for that zone
                 gameBank.setResidentialTaxes(gameBank.getResidentialTaxes() + tempResidentialZone.getResidentIncome());
@@ -1119,12 +1129,12 @@ public class TMMgame extends BasicGameState {
         gameClock.setDayEnd(false); //game clock day end variable is set to false
     }
 
-    public void skipMonthEnd() { //skip month end method 
+    public void skipMonthEnd() { //skip month end method
         for (int i = 0; i < 30 - gameClock.getDay(); i++) { //for loop goes through all of the remaining days of the month and performs the day end check
             dayEnd();
         }
         monthEnd(); //month end method is run since it is the end of the month
-        if (gameClock.getMonth() != 12) { //if it is not end of the year 
+        if (gameClock.getMonth() != 12) { //if it is not end of the year
             gameClock.setMonth(gameClock.getMonth() + 1); //month variable is set to the following month                                                                                //Taylor
         } else {
             gameClock.setMonth(1); //if it is the end of the year, month is set to 1
@@ -1136,7 +1146,7 @@ public class TMMgame extends BasicGameState {
     }
 
     public static String[] readHighScore() { //method that returns an array carrying all the high scores
-        String[] highScore = new String[10]; //String array which will carry the high scores. 
+        String[] highScore = new String[10]; //String array which will carry the high scores.
         int loopCount = 0; //loop counter which is used to count different versions of a loop
         String score = ""; //string which will carry individual scores
         boolean endOfFile; //loop check
@@ -1178,7 +1188,7 @@ public class TMMgame extends BasicGameState {
 
         //for loop which checks to see if new high score is valid
         for (int i = 0; i < highScore.length && loopCheck == true; i++) { //for loop goes through each element of the highScore array to see if the new score is less than the old scores and checks to see if the loop is running
-            if (Double.parseDouble(highScore[i]) < score) { //if statement which checks to see if new score is high enough 
+            if (Double.parseDouble(highScore[i]) < score) { //if statement which checks to see if new score is high enough
                 for (int k = i; k < (highScore.length); k++) { //for loop which then moves down every following element in the array
                     Double temp = Double.parseDouble(highScore[k]); //temp is initialized to the former score at that indice in the array
                     highScore[k] = Double.toString(score); //The indice on the highScore array is then set to the new score
@@ -1196,7 +1206,7 @@ public class TMMgame extends BasicGameState {
             //actually write the list to the file
             for (int i = 0; i < highScore.length; i++) { //for loop adds every element of the array to the list
                 bw.write(highScore[i]); //the string at each indice is added
-                bw.newLine(); //a new line is added to the text file  
+                bw.newLine(); //a new line is added to the text file
             }
             //close the connection and flush the stream
             bw.close();

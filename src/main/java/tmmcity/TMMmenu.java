@@ -48,10 +48,10 @@ public class TMMmenu extends BasicGameState {
     private boolean noPressed;
     private boolean startGame;
 
-    private static int[] xBounds = {422, 823, 854, 1257};
-    private static int[] yBounds = {363, 457, 501, 595, 635, 730, 770, 862};
-    private static int[] confirmMenuXBounds = {420, 801, 874, 1256};
-    private static int[] confirmMenuYBounds = {551, 633};
+    private static final int[] xBounds = {422, 823, 854, 1257};
+    private static final int[] yBounds = {363, 457, 501, 595, 635, 730, 770, 862};
+    private static final int[] confirmMenuXBounds = {420, 801, 874, 1256};
+    private static final int[] confirmMenuYBounds = {551, 633};
 
     // Constructor for menu state
     public TMMmenu() {
@@ -94,7 +94,6 @@ public class TMMmenu extends BasicGameState {
 
     @Override
     public void mousePressed(int button, int xpos, int ypos) {
-        System.out.println(xpos + " " + ypos);
         if (button == Input.MOUSE_LEFT_BUTTON) {
             if (!confirmResetGame) {
                 if (xpos > xBounds[0] && xpos < xBounds[3]) {

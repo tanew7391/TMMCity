@@ -21,51 +21,52 @@ import java.awt.Font;
 
 public class TMMcredits extends BasicGameState {
 
-    //Constructor for game state
+    // Constructor for game state
     public TMMcredits() {
     }
 
-    TrueTypeFont font;
-    TrueTypeFont fontSmall;
-    Font awtFont;
+    private TrueTypeFont font;
+    private TrueTypeFont fontSmall;
+    private Font awtFont;
+    private boolean goBack;
 
-    //Initializer for game state
+    // Initializer for game state
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
+        // Try to init font
+        try {
+            // Get font .tff as input stream
+            InputStream inputStream = ResourceLoader.getResourceAsStream("tmmcity\\Adore64.ttf");
 
-        //Try to init font
-        try 
-        {
-            //Get font .tff as input stream
-            InputStream inputStream = ResourceLoader.getResourceAsStream
-            ("tmmcity\\Adore64.ttf");
-            
-            //Sets font as awt font
+            // Sets font as awt font
             awtFont = java.awt.Font.createFont(Font.TRUETYPE_FONT, inputStream);
-            //Derive awtFont for large font
+            // Derive awtFont for large font
             awtFont = awtFont.deriveFont(35f); // set font size
-            //Set font as awtfont
+            // Set font as awtfont
             font = new TrueTypeFont(awtFont, false);
-            //Derive awtfont for smaller font
+            // Derive awtfont for smaller font
             awtFont = awtFont.deriveFont(20f); // set font size
-            //Set fontsmall as new awtfont
+            // Set fontsmall as new awtfont
             fontSmall = new TrueTypeFont(awtFont, false);
 
-        } 
-        //Catch any exceptions and print stack trace
-        catch (Exception e) 
-        {
+        }
+        // Catch any exceptions and print stack trace
+        catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    //Renders credit text
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        goBack = false;
+    }
+
+    // Renders credit text
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
 
-        //Set font to large
+        // Set font to large
         g.setFont(font);
-        
-        //Draw strings for credits
+
+        // Draw strings for credits
         g.drawString("TMM CITY CREDITS", 10, 175);
         g.drawString("Project Manager: Matt Reid", 10, 225);
         g.drawString("Lead Programmer: Taylor Newman", 10, 275);
@@ -76,37 +77,38 @@ public class TMMcredits extends BasicGameState {
         g.drawString("Teacher: Brad Cutten", 10, 525);
         g.drawString("Made for the ICS4U Final Project", 10, 625);
         g.drawString("BY TMM GAMES", 10, 675);
-        
-        //Set font to small
+
+        // Set font to small
         g.setFont(fontSmall);
-        
-        //Draw strings for credits
-        g.drawString("Icons made by https://www.freepik.com/"
-                + "\nFreepik from www.flaticon.com", 10, 775);
-        g.drawString("Icons made by https://www.flaticon.com/authors/eucalyp "
-                + "from www.flaticon.com", 10, 800);
-        
-        //Set font to large
+
+        // Draw strings for credits
+        g.drawString("Icons made by https://www.freepik.com/" + "\nFreepik from www.flaticon.com", 10, 775);
+        g.drawString("Icons made by https://www.flaticon.com/authors/eucalyp " + "from www.flaticon.com", 10, 800);
+
+        // Set font to large
         g.setFont(font);
-        
-        //Draw string for credits
+
+        // Draw string for credits
         g.drawString("Right click to go back", 10, 900);
     }
 
-    //Updates mouse input tracking
-    public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
-
-        //Input tracker to get mouse input
-        Input input = gc.getInput();
-
-        //If the mouse is right clicked
-        if (input.isMouseButtonDown(1)) {
-            //Enter menu state
-            sbg.enterState(1, new FadeOutTransition(), new FadeInTransition());
+    @Override
+    public void mousePressed(int button, int xpos, int ypos) {
+        System.out.println("Here! " + button);
+        if (button == Input.MOUSE_RIGHT_BUTTON) {
+            goBack = true;
         }
     }
 
-    //Gets the ID of the game state
+    // Updates mouse input tracking
+    public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
+        if (goBack) {
+            // Enter menu state
+            sbg.enterState(TMMcity.menu, new FadeOutTransition(), new FadeInTransition());
+        }
+    }
+
+    // Gets the ID of the game state
     public int getID() {
         return 3;
     }

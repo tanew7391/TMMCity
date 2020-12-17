@@ -11,14 +11,14 @@ import org.newdawn.slick.Image; //because one of the attributes of every zone is
  *
  * @author Taylor
  */
-abstract public class ZoneType implements ZoneInterface { 
+abstract public class ZoneType implements ZoneInterface {
 
     private Image tileImg;
     private int xGrid;
     private int yGrid;
     private double attraction;
 
-    public ZoneType(Image tileImg, int xGrid, int yGrid , int attraction) {
+    public ZoneType(Image tileImg, int xGrid, int yGrid, int attraction) {
         this.attraction = attraction;
         this.tileImg = tileImg;
         this.xGrid = xGrid;
@@ -54,26 +54,26 @@ abstract public class ZoneType implements ZoneInterface {
     public void setImage(Image tileImg) {
         this.tileImg = tileImg;
     }
-    
+
     @Override
-    public double getAttraction(){
-    return attraction;
+    public double getAttraction() {
+        return attraction;
     }
-    
+
     @Override
-    public void setAttraction(double a){
-    this.attraction = a;
+    public void setAttraction(double a) {
+        this.attraction = a;
     }
-    
-    public static int randomIntBetween(int a, int b){  //random integer command which is called many times throughout all of the subclasses which extend ZoneType. The max int is A and the min is B        //Taylor
-    return (int) (Math.random()*((a+1)-b))+b;
+
+    public static int randomIntBetween(int a, int b) { // random integer command which is called many times throughout
+                                                       // all of the subclasses which extend ZoneType. The max int is A
+                                                       // and the min is B //Taylor
+        return (int) (Math.random() * ((a + 1) - b)) + b;
     }
 
     @Override
     public String toString() {
         return "\nX Position = " + xGrid + " Y Position = " + yGrid + "\nAttraction = " + attraction;
     }
-    
-
 
 }
